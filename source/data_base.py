@@ -1,6 +1,6 @@
 import sqlite3 as sql
 
-DB_NAME = 'database'
+DB_NAME = 'source\\database'
 
 def connect() -> tuple[sql.Connection, sql.Cursor]:
     connection = sql.connect(f'{DB_NAME}.db')
