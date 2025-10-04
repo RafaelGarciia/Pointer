@@ -1,10 +1,18 @@
 import sqlite3 as sql
+import os
 
-DB_NAME = 'source\\database'
+# Caminho e nome do banco
+DB_FOLDER = "database"
+DB_NAME = "tickers"
+DB_PATH = os.path.join(DB_FOLDER, f"{DB_NAME}.db")
 
 
 def connect() -> tuple[sql.Connection, sql.Cursor]:
-    connection = sql.connect(f'{DB_NAME}.db')
+    # Cria a pasta se não existir
+    os.makedirs(DB_FOLDER, exist_ok=True)
+
+    # Cria (ou abre) o banco de dados
+    connection = sql.connect(f'{DB_PATH}')
     cursor = connection.cursor()
 
     return connection, cursor
