@@ -1,4 +1,7 @@
 __pycache__/
 .venv
-database.db
+database/
 teste.py
+build/
+dist/
+pointer.spec
