@@ -1,6 +1,5 @@
-from source.main import PointerApp
-
+from source.main import App
 
 if __name__ == '__main__':
-    app = PointerApp()
+    app = App()
     app.mainloop()
