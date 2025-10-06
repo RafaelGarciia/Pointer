@@ -1,8 +1,12 @@
-# **Pointer**
+<h1 align="center">Pointer</h1>
 
-<img src='docs\images\pointer_base_UI.png' alt='pointer UI' />
+<p align="center">
+  <img src='docs\images\pointer_base_UI.png' alt='pointer UI' />
+</p>
 
-A college project that analyzes stocks and real estate funds on the Brazilian stock exchange
+<p align="center"> A college project that analyzes stocks and real estate funds on the Brazilian stock exchange </p>
+
+<br>
 
 ## Goal
 
