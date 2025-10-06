@@ -10,7 +10,8 @@ Analyze **Brazilian** stocks and real estate funds, classifying them by profitab
 
 ## Installation
 
-Download the [latest executable](https://github.com/RafaelGarciia/Pointer/releases/tag/pointer) from the releases, run and use it.
+The system is compiled into a single file for ease of use.
+So download the [latest release](https://github.com/RafaelGarciia/Pointer/releases/tag/pointer), run and use it.
 
 ## Contributing
 
