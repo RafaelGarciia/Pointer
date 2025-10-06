@@ -8,3 +8,14 @@ A college project that analyzes stocks and real estate funds on the Brazilian st
 
 Analyze **Brazilian** stocks and real estate funds, classifying them by profitability of income received annually
 
+## Installation
+
+Download the [latest executable](https://github.com/RafaelGarciia/Pointer/releases/tag/pointer) from the releases, run and use it.
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first
+to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
