@@ -50,7 +50,25 @@ def load_tickers():
 
 
 def remove_ticker(id):
+    "Deleta um ticker do banco de dados."
     connection, cursor = connect()
-    cursor.execute(f'DELETE FROM tickers WHERE id = {id}')
-    connection.commit()
-    connection.close()
+    try:
+        cursor.execute(f'DELETE FROM tickers WHERE id = (?)', (id,))
+        connection.commit()
+    except Exception as ex:
+        print(f'Erro {ex}')
+    finally:
+        connection.close()
+
+def edit_ticker(old_id, new_id):
+    "Renomeia um ticker existente no banco de dados."
+    connection, cursor = connect()
+    try:
+        cursor.execute('UPDATE tickers SET id = ? WHERE id = ?', (new_id, old_id))
+        connection.commit()
+    except sql.IntegrityError:
+        print(f"Já existe um ticker com o nome '{new_id}'.")
+    except sql.OperationalError as e:
+        print(f"Erro ao editar ticker: {e}")
+    finally:
+        connection.close()
