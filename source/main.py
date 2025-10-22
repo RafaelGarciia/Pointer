@@ -118,7 +118,7 @@ class App(tk.Tk):
         bt.pack(side='left', padx=5)
 
         # Botão de novo
-        bt = ttk.Button(interact_frame, command=self.pop_up_new_ticker)
+        bt = ttk.Button(interact_frame, command=partial(ui_frame.pop_up_new_ticker, self))
         bt.configure(image=self.icon_new_ticker) if self.icon_new_ticker else bt.configure(text='Novo ticker')
         bt.pack(side='left', padx=5)
 
@@ -179,73 +179,6 @@ class App(tk.Tk):
         try: self.executor.shutdown(wait=False)
         except Exception: pass
         self.destroy()
-
-    #------------------------------------------#
-    # ------ Tela de cadastro de ticker ------ #
-    #------------------------------------------#
-    def pop_up_new_ticker(self):
-        # Janela Top Level
-        pop_up_win = tk.Toplevel(self)
-        pop_up_win.title('Novo ticker')
-        
-        # Tamanho da janela
-        w, h = 200, 100
-
-        # Atualiza a janela
-        self.update_idletasks()
-
-        # Centraliza o TopLevel na janela principal
-        x = self.winfo_x() + (self.winfo_width()//2) - (w//2)
-        y = self.winfo_y() + (self.winfo_height()//2) - (h//2)
-        pop_up_win.geometry(f'{w}x{h}+{x}+{y}')
-        pop_up_win.transient(self)
-        pop_up_win.grab_set()
-
-        # Label indicativa
-        ttk.Label(pop_up_win, text='Ativo: ').pack(pady=(12, 5))
-        
-        # Entrada do ativo
-        ticker_entry = ttk.Entry(pop_up_win, justify='center')
-        ticker_entry.focus_set()
-        ticker_entry.pack(pady=2)
-
-        # -------------- Função Save ------------- #
-        def save():
-            ticker = ticker_entry.get().strip().upper()
-            if self.register_ticker(ticker):
-                pop_up_win.destroy()
-                messagebox.showinfo('Sucesso', f'{ticker} cadastrado com sucesso.')
-
-        # Botão de save
-        ttk.Button(pop_up_win, text='Salvar', command=save).pack(pady=2)   
-  
-        # Binds
-        ticker_entry.bind('<Return>', save)
-    
-
-    #------------------------------------------#
-    # ------ Tela de cadastro de ticker ------ #
-    #------------------------------------------#
-    def register_ticker(self, ticker:str) -> bool:
-        # Se não houve um ticket digitado
-        if not ticker:
-            messagebox.showwarning('Aviso', 'Digite um Ativo.')
-            return False
-
-        # Formata o ticker. Ex: 'PETR4.SA'
-        ticker = (ticker if ticker.upper().endswith('.SA') else f'{ticker.upper()}.SA')
-
-        # Carrega os ticker no banco de dados
-        tickers = db.load_tickers()
-
-        # Verifica se o ticket ja esta no banco de dados
-        if ticker in tickers:
-            messagebox.showinfo('Ativo já cadastrado', f"'{ticker}' já está cadastrado.")
-            return False
-        
-        # Registra o ticker no banco de dados
-        db.save_ticket(ticker)
-        return True
     
     #------------------------------------------#
     # ----------- Load and search ------------ #
