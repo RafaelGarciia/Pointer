@@ -12,7 +12,11 @@ from functools import partial
 from math import floor
 from concurrent.futures import ThreadPoolExecutor
 # Modulos 
-from source import (icons, data_base as db)
+from source import (
+    icons,
+    data_base as db,
+    ui_frame
+)
 
 # String para a moeda Real br
 class RealString(tk.StringVar):
@@ -43,23 +47,18 @@ class RealString(tk.StringVar):
 
 # ----------------- Main ----------------- #
 class App(tk.Tk):
-    WINDOW_WIDTH = 1000 # Largura da janela principal
-    WINDOW_HEIGHT = 650 # Autura da janela principal
+    WINDOW_WIDTH = 600 # Largura da janela principal
+    WINDOW_HEIGHT = 600 # Autura da janela principal
     MAX_WORKERS = 6  # limite de threads para consultas
 
     def __init__(self):
         super().__init__()
         self.title('Pointer') # Define o titulo da janela
-        #self.center_window()  # Função que centraliza a janela na tela
+        self.geometry(f'{self.WINDOW_WIDTH}x{self.WINDOW_HEIGHT}')
+        self.resizable(False, False)
 
         # Definindo variaveis
         self.budget = RealString(self, 1000)
-        """self.search_date = tk.StringVar(
-            value=reverse_date(
-                (date.today() - relativedelta(years=1)).replace(day=1)
-            )
-        )"""
-        
 
         # Controle de Execução
         self.executor = ThreadPoolExecutor(max_workers=self.MAX_WORKERS)
@@ -139,6 +138,9 @@ class App(tk.Tk):
         for col in columns:
             self.table.heading(col, text=col, command=partial(self.sort_column, col))
             self.table.column(col, width=100, anchor='center')
+
+        # Bind
+        self.table.bind('<Double-1>', lambda x: ui_frame.pop_up_edit_ticker(self, self.table.item(self.table.focus(), 'values')))
 
         # Color Tags
         self.table.tag_configure('verde', background='#d4fcdc')
@@ -263,7 +265,7 @@ class App(tk.Tk):
             # Tag color categorize
             if divs_year > price * 0.15: tag = 'verde' # Yield > 15% do preço
             elif divs_year > price * 0.10: tag = 'amarelo' # Yield > 10% do preço
-            elif divs_year > price * 0.01: tag = 'vermelho' # Yield > 5% do preço
+            elif divs_year > price * 0.01: tag = '' # Yield > 5% do preço
             else: tag = ''
 
             # Compilação das informações em um dict
@@ -277,7 +279,15 @@ class App(tk.Tk):
             }
             return ('ok', data)
         except Exception as exc:
-            return ('error', f'Erro buscando {ticker}: {exc}')
+            data = {
+                'ticker': tk_upper.rstrip('.SA'),
+                'price': '--',
+                'divs_year': '--',
+                'quotas': '--',
+                'earnings': '--',
+                'tag': '--',
+            }
+            return ('error', data) #f'Erro buscando {ticker}: {exc}'
 
     def _on_search_done(self, fut):
         """Callback (executado em thread do executor). Agendamos o tratamento no thread principal."""
@@ -308,8 +318,10 @@ class App(tk.Tk):
             )
         else:
             # Erro: adiciona uma linha com a mensagem
-            msg = result[1]
-            self.table.insert('', 'end', values=('Erro', msg, '-', '-', '-'), tags=('vermelho',))
+            data = result[1]
+            self.table.insert('', 'end',
+                values=(data['ticker'],'Erro', '-', '-', '-'), tags=('vermelho',)
+            )
 
         # ---------- Progress bar ------------- #
         self.processed_tickers += 1
