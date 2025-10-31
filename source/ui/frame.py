@@ -190,3 +190,23 @@ class Pointer_consult(ttk.Frame):
             self.table.move(k, '', index)
         self.sorting_order[col] = not self.sorting_order[col]
 
+class Config(ttk.Frame):
+    def __init__(self, window:tk.Tk = None):
+        super().__init__(window)
+
+        # Config Graham
+        graham_frame = ttk.Frame(self, relief='solid')
+        graham_frame.pack()
+        ttk.Label(graham_frame, text='Grahem').pack(side='top', pady=5, padx=5)
+
+        # P/L maximo
+        max_pl = utl.Label_entry(graham_frame, 'P/L Maximo:', ...)
+        max_pl.pack(padx=5, pady=5)
+
+        # P/VP maximo
+        max_pvp = utl.Label_entry(graham_frame, 'P/VP Maximo:', ...)
+        max_pvp.pack(padx=5, pady=5)
+
+
+
+
