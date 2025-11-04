@@ -48,11 +48,11 @@ class RealString(tk.StringVar):
     def __init__(self, master=None, value='0,0', *kwargs):
         super().__init__(master)
 
-        self.integer, self.decimal = 0,0
+        self.integer, self.decimal = 0, 0
 
         self._set(str(value))
 
-    def _set(self, value:int | float):
+    def _set(self, value: int | float):
         if str(value).isdigit():
             value = int(value)
         else:
@@ -62,10 +62,10 @@ class RealString(tk.StringVar):
                 value = float(value)
             except:
                 print('erro')
-        
-        self.integer, self.decimal = f"{value:.2f}".split(".")
-        f_value = f"{int(self.integer):,}".replace(",", ".")
-        self.set(f"{f_value},{self.decimal}")
+
+        self.integer, self.decimal = f'{value:.2f}'.split('.')
+        f_value = f'{int(self.integer):,}'.replace(',', '.')
+        self.set(f'{f_value},{self.decimal}')
 
     def _get(self):
         return float(f'{self.integer}.{self.decimal}')
@@ -74,13 +74,10 @@ class RealString(tk.StringVar):
 class Window(tk.Tk):
     win_width: int   # Largura da janela principal
     win_height: int   # Autura da janela principal
-    container:tk.Frame # Frame exibido
+    container: tk.Frame   # Frame exibido
 
     def __init__(
-        self,
-        width: int = 600,
-        height: int = 600,
-        title: str = 'Window'
+        self, width: int = 600, height: int = 600, title: str = 'Window'
     ):
         super().__init__()
 
@@ -92,28 +89,31 @@ class Window(tk.Tk):
         self.win_width = width
         self.win_height = height
 
-        self.title(title) # Titulo da janela
-        self.geometry(f'{self.win_width}x{self.win_height}') # Defini o tamanho
-        center_win_on_screen(self) # Centraliza a janela na tela
+        self.title(title)   # Titulo da janela
+        self.geometry(
+            f'{self.win_width}x{self.win_height}'
+        )   # Defini o tamanho
+        self.resizable(False, False)
+        center_win_on_screen(self)   # Centraliza a janela na tela
 
     def show_frame(self, frame):
         self.container.pack_forget()
         self.container = frame
-        self.container.pack(side="top", fill="both", expand=True)
+        self.container.pack(side='top', fill='both', expand=True)
 
 
 class Pop_Up(tk.Toplevel):
-    width:int = 200
-    height:int = 100
+    width: int = 200
+    height: int = 100
 
-    def __init__(self, window:tk.Tk, title = 'Pop UP'):
+    def __init__(self, window: tk.Tk, title='Pop UP'):
         super().__init__(window)
         self.title(title)
 
         # Atualiza a janela
         window.update_idletasks()
 
-        self.geometry(f'{self.width}x{self.height}') # Defini o tamanho
+        self.geometry(f'{self.width}x{self.height}')   # Defini o tamanho
         center_pop_up(self, window)
         self.transient(window)
         self.resizable(False, False)
@@ -121,12 +121,20 @@ class Pop_Up(tk.Toplevel):
 
 
 class Label_entry(ttk.Frame):
-    def __init__(self, window:tk.Tk = None, label:str = 'label', text_var:tk.Variable = None, entry_width:int = 5, justify = 'left'):
+    def __init__(
+        self,
+        window: tk.Tk = None,
+        label: str = 'label',
+        text_var: tk.Variable = None,
+        entry_width: int = 5,
+        justify='left',
+    ):
         super().__init__(window)
 
         self.label = ttk.Label(self, text=label)
-        self.entry = ttk.Entry(self, textvariable=text_var, width=entry_width, justify=justify)
-
+        self.entry = ttk.Entry(
+            self, textvariable=text_var, width=entry_width, justify=justify
+        )
 
         self.label.pack(side='left')
         self.entry.pack(side='left')
