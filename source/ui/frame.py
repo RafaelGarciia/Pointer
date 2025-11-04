@@ -57,29 +57,18 @@ class Pointer_consult(ttk.Frame):
         treeview_frame = ttk.Frame(self)
         treeview_frame.pack(expand=True, fill='both', padx=8, pady=(4, 0))
 
-        # Colunas
-        columns = ('Ativo', 'Preço', 'Med. Div.', 'N Cotas', 'Proventos')
-        self.sorting_order = {col: True for col in columns}
+        self.table = utl.Table(
+            treeview_frame,
+            ('Ativo', 'Preço', 'Med. Div.', 'N Cotas', 'Proventos'),
+        )
 
-        # Tabela
-        self.table = ttk.Treeview(treeview_frame, columns=columns, show='headings', height=18)
-        for col in columns:
-            self.table.heading(col, text=col, command= lambda:self.sort_column(col))
-            self.table.column(col, width=100, anchor='center')
-        
         # Bind
-        self.table.bind('<Double-1>', lambda x: pop_up.edit_ticker(self, self.table.item(self.table.focus(), 'values')))
-
-        # Color Tags
-        self.table.tag_configure('verde', background='#d4fcdc')
-        self.table.tag_configure('amarelo', background='#fffacd')
-        self.table.tag_configure('vermelho', background='#fcdcdc')
-
-        # Scrollbar
-        v_scrollbar = ttk.Scrollbar(treeview_frame, orient='vertical', command=self.table.yview)
-        self.table.configure(yscrollcommand=v_scrollbar.set)
-        self.table.pack(expand=True, fill='both', side='left')
-        v_scrollbar.pack(fill='y', side='left')
+        self.table.bind(
+            '<Double-1>',
+            lambda x: pop_up.edit_ticker(
+                self, self.table.item(self.table.focus(), 'values')
+            ),
+        )
 
         # ----- Barra de Progresso + Status ------ #
 
