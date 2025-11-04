@@ -2,9 +2,9 @@ import sqlite3 as sql
 import os
 
 # Caminho e nome do banco
-DB_FOLDER = "database"
-DB_NAME = "tickers"
-DB_PATH = os.path.join(DB_FOLDER, f"{DB_NAME}.db")
+DB_FOLDER = 'database'
+DB_NAME = 'tickers'
+DB_PATH = os.path.join(DB_FOLDER, f'{DB_NAME}.db')
 
 
 def connect() -> tuple[sql.Connection, sql.Cursor]:
@@ -50,7 +50,7 @@ def load_tickers():
 
 
 def remove_ticker(id):
-    "Deleta um ticker do banco de dados."
+    """Deleta um ticker do banco de dados."""
     connection, cursor = connect()
     try:
         cursor.execute(f'DELETE FROM tickers WHERE id = (?)', (id,))
@@ -60,15 +60,18 @@ def remove_ticker(id):
     finally:
         connection.close()
 
+
 def edit_ticker(old_id, new_id):
-    "Renomeia um ticker existente no banco de dados."
+    """Renomeia um ticker existente no banco de dados."""
     connection, cursor = connect()
     try:
-        cursor.execute('UPDATE tickers SET id = ? WHERE id = ?', (new_id, old_id))
+        cursor.execute(
+            'UPDATE tickers SET id = ? WHERE id = ?', (new_id, old_id)
+        )
         connection.commit()
     except sql.IntegrityError:
         print(f"Já existe um ticker com o nome '{new_id}'.")
     except sql.OperationalError as e:
-        print(f"Erro ao editar ticker: {e}")
+        print(f'Erro ao editar ticker: {e}')
     finally:
         connection.close()
