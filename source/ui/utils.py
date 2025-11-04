@@ -40,7 +40,8 @@ def center_pop_up(pop_up: tk.Toplevel, win: tk.Tk) -> None:
     y = win.winfo_y() + (win_h // 2) - (pop_h // 2)
 
     # Seta a posição e o tamanho do toplevel
-    win.geometry(f'{pop_w}x{pop_h}+{x}+{y}')
+    pop_up.geometry(f'{pop_w}x{pop_h}+{x}+{y}')
+
 
 # String para a moeda Real br
 class RealString(tk.StringVar):
