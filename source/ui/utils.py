@@ -129,4 +129,50 @@ class Label_entry(ttk.Frame):
 
         self.label.pack(side='left')
         self.entry.pack(side='left')
-    
+
+
+class Table(ttk.Treeview):
+    def __init__(self, window: tk.Frame, columns: list):
+        super().__init__(window)
+
+        self.sorting_order = {col: True for col in columns}
+
+        self.config(columns=columns, show='headings', height=18)
+        for col in columns:
+            self.heading(col, text=col, command=lambda: self.sort_column(col))
+            self.column(col, width=100, anchor='center')
+
+        # Color Tags
+        self.tag_configure('verde', background='#d4fcdc')
+        self.tag_configure('amarelo', background='#fffacd')
+        self.tag_configure('vermelho', background='#fcdcdc')
+
+        # Scrollbar
+        v_scrollbar = ttk.Scrollbar(
+            window, orient='vertical', command=self.yview
+        )
+        self.configure(yscrollcommand=v_scrollbar.set)
+        self.pack(expand=True, fill='both', side='left')
+        v_scrollbar.pack(fill='y', side='left')
+
+    def sort_column(self, col: str):
+        """Ordena a coluna do Treeview.
+        Tenta ordenar numericamente quando possivel.
+        """
+        children = self.get_children('')
+        data = [(self.set(k, col), k) for k in children]
+        try:
+            # Tenta utilizar como float
+            data.sort(
+                key=lambda t: float(str(t[0]).replace(',', '.')),
+                reverse=not self.sorting_order[col],
+            )
+        except Exception:
+            # Caso não utiliza str
+            data.sort(
+                key=lambda t: str(t[0]), reverse=not self.sorting_order[col]
+            )
+
+        for index, (_, k) in enumerate(data):
+            self.move(k, '', index)
+        self.sorting_order[col] = not self.sorting_order[col]
