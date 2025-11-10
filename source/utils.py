@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+from datetime import datetime
+from typing import Literal
 
 def center_win_on_screen(win: tk.Tk) -> None:
     """Centraliza a janela na tela"""
@@ -72,8 +74,8 @@ class RealString(tk.StringVar):
 
 
 class Window(tk.Tk):
-    win_width: int   # Largura da janela principal
-    win_height: int   # Autura da janela principal
+    width: int   # Largura da janela principal
+    height: int   # Autura da janela principal
     container: tk.Frame   # Frame exibido
 
     def __init__(
@@ -86,12 +88,12 @@ class Window(tk.Tk):
         self.container.pack()
 
         # Armazena as dimenções da janela
-        self.win_width = width
-        self.win_height = height
+        self.width = width
+        self.height = height
 
         self.title(title)   # Titulo da janela
         self.geometry(
-            f'{self.win_width}x{self.win_height}'
+            f'{width}x{height}'
         )   # Defini o tamanho
         self.resizable(False, False)
         center_win_on_screen(self)   # Centraliza a janela na tela
@@ -103,41 +105,79 @@ class Window(tk.Tk):
 
 
 class Pop_Up(tk.Toplevel):
-    width: int = 200
-    height: int = 100
+    width: int   # Largura da janela pop up
+    height: int   # Autura da janela pop up
 
-    def __init__(self, window: tk.Tk, title='Pop UP'):
+    def __init__(self, window: tk.Tk, title='Pop UP', width: int = 200, height: int = 100):
         super().__init__(window)
+        
+        # Seta o titulo da janela pop up
         self.title(title)
+
+        # Armazena as dimenções da janela pop up
+        self.width = width
+        self.height = height
 
         # Atualiza a janela
         window.update_idletasks()
 
-        self.geometry(f'{self.width}x{self.height}')   # Defini o tamanho
+        self.geometry(f'{width}x{height}')   # Defini o tamanho
         center_pop_up(self, window)
         self.transient(window)
         self.resizable(False, False)
         self.grab_set()
 
 
-class Label_entry(ttk.Frame):
+class Label_entry:
+    top_label: bool  # variavel que define se a label sera exibina em cima da entry ou do lado
+
     def __init__(
         self,
-        window: tk.Tk = None,
+        master: tk.Tk | tk.Frame | tk.Toplevel,
         label: str = 'label',
-        text_var: tk.Variable = None,
-        entry_width: int = 5,
-        justify='left',
-    ):
-        super().__init__(window)
+        width: int = 20,
+        justify: Literal['left', 'center', 'right'] = "left",
+        state: str = "normal",
+        textvariable: tk.Variable | None = None,
+        top_label: bool = False 
+    ) -> None:
+        
+        self.top_label = top_label # Passa o argumento para a variavel do objeto
 
-        self.label = ttk.Label(self, text=label)
-        self.entry = ttk.Entry(
-            self, textvariable=text_var, width=entry_width, justify=justify
-        )
+        # Instancia os widgets
+        self.frame = ttk.Frame(master)
+        self.label = ttk.Label(self.frame, text=label)
+        self.entry = ttk.Entry(self.frame, width=width, justify=justify, state=state, textvariable=textvariable)
 
-        self.label.pack(side='left')
+    def get(self) -> str|int|float:
+        # Retorna o valor do widget entry
+        return self.entry.get()
+    
+    def set(self, value: str | int | float) -> None:
+        self.entry.delete(0, tk.END) # Deleta oque esta na entry
+        self.entry.insert(0, value) # Inseri o novo valor na entry
+
+    def pack(self,
+        padx: int | float | str | tuple[float | str, float | str] = 0,
+        pady: int | float | str | tuple[float | str, float | str] = 0,
+        ipadx: float | str = 0,
+        ipady: float | str = 0,
+        anchor: Literal['nw', 'n', 'ne', 'w', 'center', 'e', 'sw', 's', 'se'] = 'center',
+        side: Literal['left', 'right', 'top', 'bottom'] = 'left',
+        expand: bool | Literal[0, 1] = 0,
+        fill: Literal['none', 'x', 'y', 'both'] = 'none',
+    ) -> None:
+        # Da pack na label, se o parametro top label for True, ele da pack em cima da entry, se não, da pack na esquerda da entry
+        self.label.pack(side='top' if self.top_label else 'left')
         self.entry.pack(side='left')
+        self.frame.pack(padx=padx, pady=pady, ipadx=ipadx, ipady=ipady, anchor=anchor, side=side, expand=expand, fill=fill)
+
+    def set_focus(self) -> None:
+        # Seta o foco na entry
+        self.entry.focus_set()
+    
+    def entry_bind(self, key: Literal['Button1','Double-Button-1', 'Button2','Double-Button-1', 'Any_key', 'Return', 'Motion']|str, func: object) -> None:
+        self.entry.bind(f'<{key}>', func)
 
 
 class Table(ttk.Treeview):
@@ -152,14 +192,13 @@ class Table(ttk.Treeview):
             self.column(col, width=100, anchor='center')
 
         # Color Tags
+        self.tag_configure('azul', background="#b5dbff")
         self.tag_configure('verde', background='#d4fcdc')
         self.tag_configure('amarelo', background='#fffacd')
         self.tag_configure('vermelho', background='#fcdcdc')
-
+        
         # Scrollbar
-        v_scrollbar = ttk.Scrollbar(
-            window, orient='vertical', command=self.yview
-        )
+        v_scrollbar = ttk.Scrollbar(window, orient='vertical', command=self.yview)
         self.configure(yscrollcommand=v_scrollbar.set)
         self.pack(expand=True, fill='both', side='left')
         v_scrollbar.pack(fill='y', side='left')
@@ -184,4 +223,54 @@ class Table(ttk.Treeview):
 
         for index, (_, k) in enumerate(data):
             self.move(k, '', index)
+
         self.sorting_order[col] = not self.sorting_order[col]
+
+    def clear_table(self) -> None:
+        # Limpa a tabela
+        for item in self.get_children():
+            self.delete(item)
+
+
+class ProgressBar(ttk.Frame):
+    def __init__(self,
+        master = None,
+        length = 400,
+        mode: Literal['determinate', 'indeterminate'] = 'determinate',
+        status_label:str = 'Progress Bar'
+    ):
+        super().__init__(master)
+
+        self.bar = ttk.Progressbar(self, length=length, mode=mode)
+        self.bar.pack()
+
+        self.status_label = ttk.Label(self, text=status_label)
+        self.bar.pack(side='left', padx=5)
+        self.status_label.pack(side='left', padx=5)
+
+    def progress(self):
+        self.bar['value'] = self.bar['value'] + 1
+        
+        if self.bar['value'] >= self.bar['maximum']:
+            self.status_label.config(text='Concluido!')
+        else:
+            self.status_label.config(text=f'{self.bar['value']}/{self.bar['maximum']}')
+        
+
+def parse_date_br(date_str:str):
+    """
+    Recebe dd/mm/yyyy e retorna ISO yyyy-mm-dd.
+    """
+    try:
+        dt = datetime.strptime(date_str.strip(), '%d/%m/%Y')
+        return dt.date().isoformat()
+    except Exception as ex:
+        raise ValueError('Data inválida. Use dd/mm/aaaa (ex: 25/10/2000).')
+    
+def iso_to_br(date_iso):
+    try:
+        dt = datetime.strptime(date_iso, '%Y-%m-%d')
+        return dt.strftime('%d/%m/%Y')
+    except:
+        return date_iso
+    
