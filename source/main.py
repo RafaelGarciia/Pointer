@@ -19,8 +19,10 @@ def app():
         label='Pointer',
         command=lambda: win.show_frame(frame.Pointer_consult(win)),
     )
-    config_cascade.add_command(
-        label='Configure', command=lambda: win.show_frame(frame.Config(win))
+
+    top_menu.add_command(
+        label='Wallet',
+        command=lambda: win.show_frame(frame.Wallet(win)),
     )
 
     win.config(menu=top_menu)
