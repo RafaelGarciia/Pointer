@@ -1,8 +1,8 @@
 import yfinance as yf
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from source.ui import utils
 from math import floor
+from time import sleep
 
 
 def search_worker(ticker: str, budget: utils.RealString):

@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-
-from source import data_base as db, icons, search
-from source.ui import utils as utl
-from source.ui import pop_up
 from concurrent.futures import ThreadPoolExecutor
+
+from source import utils, icons, data_base, search
+from source.ui import pop_up
+from math import floor
 
 
 class Pointer_consult(ttk.Frame):

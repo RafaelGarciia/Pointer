@@ -1,12 +1,12 @@
 from tkinter import Menu
-from source.ui import utils as utl
+from source import (
+    data_base as db, utils as utl
+)
 from source.ui import frame
-from source import data_base
-
 
 def app():
 
-    data_base.db_init()
+    db.db_init()
 
     win = utl.Window()
 

@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from source.ui import utils as utl
-from source import data_base as db
 
+from source import utils, data_base
 
 def new_ticker(window: tk.Tk) -> None:
 
