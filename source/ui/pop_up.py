@@ -113,37 +113,75 @@ def check_ticker(ticker:str, not_register:bool = False):
             return True
 
 
-        # Formata o ticker. Ex: 'PETR4.SA'
-        ticker = (
-            ticker
-            if ticker.upper().endswith('.SA')
-            else f'{ticker.upper()}.SA'
-        )
-
-        # Carrega os ticker no banco de dados
-        tickers = db.load_tickers()
-
-        # Verifica se o ticket ja esta no banco de dados
-        if not ticker in tickers:
-            messagebox.showinfo(
-                'Ativo não cadastrado', f"'{ticker}' não está cadastrado."
-            )
+def new_transaction(window: frame.Wallet):
+    def save():
+        try:
+            date_iso = utl.parse_date_br(entry_date.get())
+        except ValueError as error:
+            messagebox.showerror('Data inválida', str(error))
             return
+        
+        inp_type = type_var.get()
+        active = entry_active.get().strip()
 
-        # Registra o ticker no banco de dados
-        db.remove_ticker(ticker)
+        if not active:
+            messagebox.showerror('Erro', 'Informe o ticker do ativo.')
+            return
+        
+        try:
+            qnt = float(entry_qnt.get().replace(',', '.'))
+            price = float(entry_price.get().replace(',', '.'))
+            fees = float(entry_fees.get().replace(',', '.'))
+        except Exception:
+            messagebox.showerror('Erro', "Quantidade, preço e taxa devem ser números (use ponto ou virgula).")
+            return
+        
+        notes = entry_notes.get().strip()
+
+        db.add_transaction(date_iso, inp_type, active, qnt, price, fees, notes)
         pop_up.destroy()
-        messagebox.showinfo('Sucesso', f'{ticker} deletado com sucesso.')
+        window.load_table()
+        messagebox.showinfo('ok', "Transação adicionada.")
 
-    # Botão de save
-    ttk.Button(pop_up, text='Salvar', command=edit).pack(
-        pady=5, padx=10, side='left'
-    )
+    # Janela Top Level
+    pop_up = utl.Pop_Up(window, 'New Transaction')
+    pop_up.geometry('300x300')
 
-    # Botão de delete
-    ttk.Button(pop_up, text='Excluir', command=delete).pack(
-        pady=5, padx=10, side='right'
-    )
+    # Data entry
+    ttk.Label(pop_up, text="Data:", anchor='center').grid(row=0, column=0, pady=4, padx=4)
+    entry_date = ttk.Entry(pop_up, width=12)
+    entry_date.grid(row=0, column=1, sticky="w", padx=(4,12), pady=4)
 
-    # Binds
-    ticker_entry.bind('<Return>', edit)
+    # Tipo
+    ttk.Label(pop_up, text="Tipo:", anchor='center').grid(row=0, column=2, pady=4, padx=4)
+    type_var = tk.StringVar(value="Compra")
+    cb_type = ttk.Combobox(pop_up, values=["Compra", "Venda"], textvariable=type_var, width=9, state="readonly")
+    cb_type.grid(row=0, column=3, sticky="w", padx=(4,12), pady=4)
+
+    # Ativo
+    ttk.Label(pop_up, text="Ativo:", anchor='center').grid(row=1, column=0, pady=4, padx=4)
+    entry_active = ttk.Entry(pop_up, width=12)
+    entry_active.grid(row=1, column=1, sticky="w", padx=(4,12), pady=4)
+
+    # Quantidade
+    ttk.Label(pop_up, text="Quant.:", anchor='center').grid(row=1, column=2, pady=4, padx=4)
+    entry_qnt = ttk.Entry(pop_up, width=12)
+    entry_qnt.grid(row=1, column=3, sticky="w", padx=(4,12), pady=4)
+
+    # Preço
+    ttk.Label(pop_up, text="Preço/uni:", anchor='center').grid(row=2, column=0, pady=4, padx=4)
+    entry_price = ttk.Entry(pop_up, width=12)
+    entry_price.grid(row=2, column=1, sticky="w", padx=(4,12), pady=4)
+
+    # Taxa
+    ttk.Label(pop_up, text="Taxas:", anchor='center').grid(row=2, column=2, pady=4, padx=4)
+    entry_fees = ttk.Entry(pop_up, width=12)
+    entry_fees.grid(row=2, column=3, sticky="w", padx=(4,12), pady=4)
+
+    # Notas
+    ttk.Label(pop_up, text="Notas:", anchor='center').grid(row=3, column=0, pady=4, padx=4)
+    entry_notes = ttk.Entry(pop_up, width=37)
+    entry_notes.grid(row=3, column=1, columnspan=3, sticky="w", pady=4)
+
+    # Botão de salvar
+    ttk.Button(pop_up, text="Salvar", command=save).grid(row=4, column=0, columnspan=4)
