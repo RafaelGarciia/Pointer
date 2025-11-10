@@ -3,106 +3,115 @@ from tkinter import ttk, messagebox
 
 from source import utils, data_base
 
-def new_ticker(window: tk.Tk) -> None:
 
-    # Janela Top Level
-    pop_up = utl.Pop_Up(window, 'New Ticket')
+class New_ticket(utils.Pop_Up):
+    def __init__(self, window):
+        super().__init__(window, title='Novo Ticket')
 
-    # Label indicativa
-    ttk.Label(pop_up, text='Ativo: ').pack(pady=(12, 5))
+        # Ticker entry
+        self.ticker_entry = utils.Label_entry(self, 'Ativo', top_label=True)
+        self.ticker_entry.set_focus()
+        self.ticker_entry.pack(pady=2, side='top')
 
-    # Entrada do ativo
-    ticker_entry = ttk.Entry(pop_up, justify='center')
-    ticker_entry.focus_set()
-    ticker_entry.pack(pady=2)
+        # Botão de save
+        ttk.Button(self, text='Salvar', command=self.save).pack(pady=2)
+        
+        # Binding Entry
+        self.ticker_entry.entry_bind('Return', lambda x: self.save())
 
-    # -------------- Função Save ------------- #
-    def save(event=None):
-        ticker = ticker_entry.get().strip().upper()
-        if not ticker:
-            messagebox.showwarning('Aviso', 'Digite um Ativo.')
-            return
-
-        # Formata o ticker. Ex: 'PETR4.SA'
-        ticker = (
-            ticker
-            if ticker.upper().endswith('.SA')
-            else f'{ticker.upper()}.SA'
-        )
-
-        # Carrega os ticker no banco de dados
-        tickers = db.load_tickers()
-
-        # Verifica se o ticket ja esta no banco de dados
-        if ticker in tickers:
-            messagebox.showinfo(
-                'Ativo já cadastrado', f"'{ticker}' já está cadastrado."
-            )
+    def save(self):
+        
+        # Coleta o que foi digitado
+        ticker = self.ticker_entry.get().strip().upper()
+        
+        if not check_ticker(ticker):
             return
 
         # Registra o ticker no banco de dados
-        db.save_ticket(ticker)
-        pop_up.destroy()
+        data_base.save_ticket(ticker)
+        self.destroy()
         messagebox.showinfo('Sucesso', f'{ticker} cadastrado com sucesso.')
-
-    # Botão de save
-    ttk.Button(pop_up, text='Salvar', command=save).pack(pady=2)
-
-    # Binds
-    ticker_entry.bind('<Return>', save)
-
-
-def edit_ticker(window: tk.Tk, item) -> None:
-    if not item:
+        
+        # Finaliza a função
         return
 
-    # Janela Top Level
-    pop_up = utl.Pop_Up(window, 'Edit Ticket')
 
-    # Label indicativa
-    ttk.Label(pop_up, text='Ativo: ').pack(pady=(12, 5))
+class Edit_ticker(utils.Pop_Up):
+    def __init__(self, window, item):
+        super().__init__(window, title='Editar Ticket')
 
-    # Entrada do ativo
-    ticker_entry = ttk.Entry(pop_up, justify='center')
-    ticker_entry.focus_set()
-    ticker_entry.insert('end', item[0])
-    ticker_entry.pack(pady=2)
+        self.item = item
 
-    # -------------- Função Edit ------------- #
-    def edit(event=None):
-        ticker = ticker_entry.get().strip().upper()
-        if not ticker:
-            messagebox.showwarning('Aviso', 'Digite um Ativo.')
-            return
+        # Ticker entry
+        self.ticker_entry = utils.Label_entry(self, 'Ativo', top_label=True)
+        self.ticker_entry.set(item[0])
+        self.ticker_entry.set_focus()
+        self.ticker_entry.pack(pady=2, side='top')
 
-        # Formata o ticker. Ex: 'PETR4.SA'
-        ticker = (
-            ticker
-            if ticker.upper().endswith('.SA')
-            else f'{ticker.upper()}.SA'
+        # Botão de save
+        ttk.Button(self, text='Salvar', command= self.edit).pack(
+            pady=5, padx=10, side='left'
         )
 
-        # Carrega os ticker no banco de dados
-        tickers = db.load_tickers()
+        # Botão de delete
+        ttk.Button(self, text='Excluir', command=self.delete).pack(
+            pady=5, padx=10, side='right'
+        )
 
-        # Verifica se o ticket ja esta no banco de dados
-        if ticker in tickers:
-            messagebox.showinfo(
-                'Ativo já cadastrado', f"'{ticker}' já está cadastrado."
-            )
+        # Binds
+        self.ticker_entry.entry_bind('Return', lambda x: self.edit())
+
+    def edit(self, event=None):
+        # Coleta o que foi digitado
+        ticker = self.ticker_entry.get().strip().upper()
+
+        if not check_ticker(ticker):
             return
-
+    
         # Registra o ticker no banco de dados
-        db.edit_ticker(f'{item[0]}.SA', ticker)
-        pop_up.destroy()
-        messagebox.showinfo('Sucesso', f'{ticker} cadastrado com sucesso.')
+        data_base.edit_ticker(f'{self.item[0]}', ticker)
+        self.destroy()
+        messagebox.showinfo('Sucesso', f'{self.item[0]} alterado com sucesso para {ticker}.')
 
-    # ------------- Função Delete ------------ #
-    def delete(event=None):
-        ticker = f'{item[0]}.SA'
-        if not ticker:
-            messagebox.showwarning('Aviso', 'Digite um Ativo.')
+    def delete(self, event=None):
+        
+        if not check_ticker(self.item[0], True):
             return
+        
+        # Registra o ticker no banco de dados
+        data_base.remove_ticker(self.item[0])
+        self.destroy()
+        messagebox.showinfo('Sucesso', f'{self.item[0]} deletado com sucesso.')
+
+
+def format_ticker(ticker) -> str:
+    # Formata o ticker colocando .SA no final, para utilizar na busca
+    ticker = ticker if ticker.upper().endswith('.SA') else f'{ticker.upper()}.SA'
+    return ticker
+
+def check_ticker(ticker:str, not_register:bool = False):
+    # Verifica se esta vazio
+    if not ticker:
+        messagebox.showwarning('Aviso', 'Digite um ativo.')
+        return False
+
+    # Carrega os ticker salvos no banco de dados
+    tickers_db = data_base.load_tickers()
+
+    # Verifica se o ticker já esta registrado
+    if not_register:
+        if not ticker in tickers_db:
+            messagebox.showinfo('Ativo não cadastrado', f"'{ticker}' não está cadastrado.")
+            return False
+        else:
+            return True
+    else:
+        if ticker in tickers_db:
+            messagebox.showinfo('Ativo já cadastrado', f"'{ticker}' já cadastrado.") 
+            return False
+        else:
+            return True
+
 
         # Formata o ticker. Ex: 'PETR4.SA'
         ticker = (
