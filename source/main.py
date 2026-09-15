@@ -17,7 +17,7 @@ def app():
 
     top_menu.add_command(
         label='Pointer',
-        command=lambda: win.show_frame(frame.Pointer_consult(win)),
+        command=lambda: show_frame_if_not_current(win, frame.Pointer_consult), 
     )
     config_cascade.add_command(
         label='Configure', command=lambda: win.show_frame(frame.Config(win))
@@ -26,3 +26,8 @@ def app():
     win.config(menu=top_menu)
 
     win.mainloop()
+
+
+def show_frame_if_not_current(win:utl.Window, frame_class):
+    if not isinstance(win.container, frame_class):
+        win.show_frame(frame_class(win))

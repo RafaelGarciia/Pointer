@@ -5,7 +5,7 @@ from source.ui import utils
 from math import floor
 
 
-def search_worker(ticker: str, budget: utils.RealString):
+def search_worker(ticker: str, budget: utils.RealString | int | float) -> tuple[str, dict]:
     try:
         ticker = ticker.upper()   # Registra o ticker em maiusculo
         active = yf.Ticker(ticker)   # Instancia o ticker
@@ -36,7 +36,12 @@ def search_worker(ticker: str, budget: utils.RealString):
             divs_year = 0.0
 
         # Iniciando as variaveis para o calculo
-        budget_value: float = budget._get()   # Orçamento
+        if isinstance(budget, utils.RealString):
+            budget_value = budget._get()  # Orçamento
+        elif isinstance(budget, (int, float)):
+            budget_value = float(budget)  # Orçamento
+        else:
+            raise TypeError("Tipo de orçamento não suportado")
         quotas = 0      # Cotas
         earnings = 0.0  # Proventos
 
@@ -76,4 +81,4 @@ def search_worker(ticker: str, budget: utils.RealString):
             'earnings': '--',
             'tag': '--',
         }
-        return ('error', data)   # f'Erro buscando {ticker}: {exc}'
+        return (exc, data)   # f'Erro buscando {ticker}: {exc}'
